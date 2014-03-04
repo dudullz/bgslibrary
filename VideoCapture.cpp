@@ -78,6 +78,7 @@ namespace bgslibrary
     useCamera(false), useVideo(false), input_resize_percent(100), showOutput(true), enableFlip(false)
   {
     std::cout << "VideoCapture()" << std::endl;
+	capture = NULL;
   }
 
   VideoCapture::~VideoCapture()
@@ -122,19 +123,85 @@ namespace bgslibrary
     if (!capture)
       std::cerr << "Cannot open video file " << videoFileName << std::endl;
   }
+  
+  void VideoCapture::setImages(std::string path)
+{
+	std::cout << "	[VideoCapture::setImages()]" << std::endl;
+	useImages = true;
+	imgPath = path;
+	
+	useCamera = false;
+	useVideo = false;
+}
+
+void VideoCapture::setUpImages()
+{
+//	std::cout << "Now read all images under " << imgPath << std::endl;
+    namespace fs = boost::filesystem;
+    fs::path imgDir(imgPath);
+    
+    typedef std::multimap<std::time_t, fs::path> result_set_t;
+    result_set_t result_set;
+    
+    try
+    {
+        if (fs::exists(imgDir))    // does imgDir actually exist?
+        {
+            if (fs::is_regular_file(imgDir))        // is p a regular file?
+                std::cout << imgDir << " size is " << file_size(imgDir) << '\n';
+            else if (fs::is_directory(imgDir))      // is p a directory?
+            {
+                std::cout << imgDir << " is a directory containing:\n";
+                
+                typedef std::vector<fs::path> vec;             // store paths,
+                vec v;                                // so we can sort them later
+                
+                copy(fs::directory_iterator(imgDir), fs::directory_iterator(), back_inserter(imgNames));
+                
+                sort(imgNames.begin(), imgNames.end());             // sort, since directory iteration
+                                                        // is not ordered on some file systems
+                
+                for (vec::const_iterator it (imgNames.begin()); it != imgNames.end(); ++it)
+                {
+                    std::cout << "   " << *it << '\n';
+                }
+							std::cout << "Image Number: " << imgNames.size() << std::endl;
+            }
+            
+            else
+                std::cout << imgDir << " exists, but is neither a regular file nor a directory\n";
+        }
+        else
+            std::cout << imgDir << " does not exist\n";
+    }
+    
+    catch (const fs::filesystem_error& ex)
+    {
+        std::cout << ex.what() << '\n';
+    }    
+}
 
   void VideoCapture::start()
   {
+	  std::cout << "	[VideoCapture::start()]" << std::endl;
     loadConfig();
 
     if (useCamera) setUpCamera();
     if (useVideo)  setUpVideo();
-    if (!capture)  std::cerr << "Capture error..." << std::endl;
+	if(useImages)	setUpImages();
+    if(!capture && !useImages)  std::cerr << "Capture error..." << std::endl;
 
-    int input_fps = cvGetCaptureProperty(capture, CV_CAP_PROP_FPS);
-    std::cout << "input->fps:" << input_fps << std::endl;
-
-    IplImage* frame1 = cvQueryFrame(capture);
+   IplImage* frame1 = NULL;
+	int input_fps = -1;
+	if(capture)
+	{
+		input_fps = cvGetCaptureProperty(capture,CV_CAP_PROP_FPS);
+		std::cout << "input->fps:" << input_fps << std::endl;
+		
+		frame1 = cvQueryFrame(capture);
+	}else if(useImages)
+		frame1 = cvLoadImage(imgNames.at(frameNumber).string().c_str());
+    
     frame = cvCreateImage(cvSize((int)((frame1->width*input_resize_percent) / 100), (int)((frame1->height*input_resize_percent) / 100)), frame1->depth, frame1->nChannels);
     //cvCreateImage(cvSize(frame1->width/input_resize_factor, frame1->height/input_resize_factor), frame1->depth, frame1->nChannels);
     std::cout << "input->resize_percent:" << input_resize_percent << std::endl;
@@ -151,7 +218,17 @@ namespace bgslibrary
     {
       frameNumber++;
 
-      frame1 = cvQueryFrame(capture);
+      if(capture)
+		{
+			frame1 = cvQueryFrame(capture);
+		}
+		else if(useImages)
+		{
+			std::cout << std::endl << "Read: " << imgNames.at(frameNumber).string() << std::endl;
+			frame1 = cvLoadImage(imgNames.at(frameNumber).string().c_str());
+		
+		}else
+			std::cout << "Should not reach this far!!!!" << std::endl;
       if (!frame1) break;
 
       cvResize(frame1, frame);

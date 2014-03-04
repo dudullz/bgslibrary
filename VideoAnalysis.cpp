@@ -18,7 +18,7 @@ along with BGSLibrary.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace bgslibrary
 {
-  VideoAnalysis::VideoAnalysis() : use_file(false), use_camera(false), cameraIndex(0), use_comp(false), frameToStop(0)
+  VideoAnalysis::VideoAnalysis() : use_file(false), use_camera(false), use_imgs(false), cameraIndex(0), use_comp(false), frameToStop(0)
   {
     std::cout << "VideoAnalysis()" << std::endl;
   }
@@ -41,6 +41,8 @@ namespace bgslibrary
       "{co|use_comp|false|Use mask comparator}"
       "{st|stopAt|0|Frame number to stop}"
       "{im|imgref||Specify image file}"
+	  	"{pt|imgpath||Specify the absolute path to the image sequence}"
+		"{sv|save_path||Specify the absolute path to save the output binary images}"
       ;
     cv::CommandLineParser cmd(argc, argv, keys);
 
@@ -72,6 +74,18 @@ namespace bgslibrary
       cameraIndex = cmd.get<int>("camera");
       flag = true;
     }
+    
+     if(!use_file && !use_camera)
+	  use_imgs = true;
+// 	use_imgs = cmd.get<bool>("use_imgs");
+	if(use_imgs)
+	{
+		imgPath = cmd.get<std::string>("imgpath");
+		std::cout << "	Get images from " << imgPath << std::endl;
+		flag = true;
+	}
+	
+	savePath = cmd.get<std::string>("save_path");
 
     if (flag == true)
     {
@@ -102,6 +116,7 @@ namespace bgslibrary
       frameProcessor->init();
       frameProcessor->frameToStop = frameToStop;
       frameProcessor->imgref = imgref;
+	  frameProcessor->savePath = savePath;
 
       videoCapture->setFrameProcessor(frameProcessor);
 
@@ -111,6 +126,9 @@ namespace bgslibrary
       if (use_camera)
         videoCapture->setCamera(cameraIndex);
 
+	  if(use_imgs)
+		videoCapture->setImages(imgPath);
+	  
       videoCapture->start();
 
       if (use_file || use_camera)

@@ -160,7 +160,15 @@ namespace bgslibrary
 
   void FrameProcessor::process(const cv::Mat &img_input)
   {
+	  std::cout << " [FrameProcessor::process(const cv::Mat &img_input)] " << std::endl;	
     frameNumber++;
+	
+	if(savePath.length() > 0)
+	{
+		char tmp[512];
+		sprintf(tmp, "%s/%05d.jpg", savePath.c_str(), frameNumber);
+		saveName = tmp;
+	}
 
     if (enablePreProcessor)
       preProcessor->process(img_input, img_prep);
@@ -245,8 +253,15 @@ namespace bgslibrary
     if (enableLBAdaptiveSOM)
       process("LBAdaptiveSOM", lbAdaptiveSOM, img_prep, img_lb_som);
 
-    if (enableLBFuzzyAdaptiveSOM)
-      process("LBFuzzyAdaptiveSOM", lbFuzzyAdaptiveSOM, img_prep, img_lb_fsom);
+    if (enableLBFuzzyAdaptiveSOM)      
+	{
+		process("LBFuzzyAdaptiveSOM", lbFuzzyAdaptiveSOM, img_prep, img_lb_fsom);
+		if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_lb_fsom);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	}
 
 #if !defined(_WIN32)
     if (enableLbpMrf)

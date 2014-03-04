@@ -235,6 +235,8 @@ namespace bgslibrary
 
     long frameToStop;
     std::string imgref;
+	std::string savePath;
+	std::string saveName;
 
     void init();
     void process(const cv::Mat &img_input);

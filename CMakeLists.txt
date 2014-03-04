@@ -6,6 +6,11 @@ project(bgs)
 set(CMAKE_CXX_FLAGS "${CMAKE_CSS_FLAGS} -std=gnu++0x")
 
 find_package(OpenCV REQUIRED)
+find_package(Boost REQUIRED)
+
+message (WARNING "Boost_INCLUDES: ${Boost_INCLUDES}")
+message (WARNING "Boost_LIBS: ${Boost_LIBS}")
+message (WARNING "Boost_FOUND: ${Boost_FOUND}")
 
 if(${OpenCV_VERSION} VERSION_LESS 2.3.1)
   message (FATAL_ERROR "OpenCV version is not compatible: ${OpenCV_VERSION}")
@@ -30,7 +35,7 @@ endif()
 include_directories(${CMAKE_SOURCE_DIR})
 
 add_library(bgs SHARED ${sources} ${bgs} ${analysis})
-target_link_libraries(bgs ${OpenCV_LIBS})
+target_link_libraries(bgs ${OpenCV_LIBS} /usr/local/lib/libboost_system.so /usr/local/lib/libboost_filesystem.so)
 set_property(TARGET bgs PROPERTY PUBLIC_HEADER ${bgs_include})
 
 add_executable(bgs_bin ${main})

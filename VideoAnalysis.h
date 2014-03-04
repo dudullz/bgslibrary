@@ -36,6 +36,10 @@ namespace bgslibrary
     bool use_comp;
     long frameToStop;
     std::string imgref;
+	
+	bool use_imgs;
+	std::string imgPath;
+	std::string savePath;
 
   public:
     VideoAnalysis();

@@ -19,6 +19,8 @@ along with BGSLibrary.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <cv.h>
 #include <highgui.h>
+#include <vector>
+#include "boost/filesystem.hpp"
 
 #include "Config.h"
 #include "IFrameProcessor.h"
@@ -46,6 +48,12 @@ namespace bgslibrary
     bool showOutput;
     bool enableFlip;
 
+	bool useImages;
+	std::string imgPath;
+  std::vector<std::string> imgFiles;
+	typedef std::vector<boost::filesystem::path> vec;             // store paths,
+	vec imgNames;                                // so we can sort them later
+	
   public:
     VideoCapture();
     ~VideoCapture();
@@ -53,11 +61,13 @@ namespace bgslibrary
     void setFrameProcessor(IFrameProcessor* frameProcessorPtr);
     void setCamera(int cameraIndex);
     void setVideo(std::string filename);
+	void setImages(std::string path);
     void start();
 
   private:
     void setUpCamera();
     void setUpVideo();
+	void setUpImages();
 
     void saveConfig();
     void loadConfig();
