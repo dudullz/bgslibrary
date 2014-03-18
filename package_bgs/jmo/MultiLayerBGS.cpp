@@ -251,8 +251,12 @@ void MultiLayerBGS::process(const cv::Mat &img_input, cv::Mat &img_output, cv::M
 
 void MultiLayerBGS::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/MultiLayerBGS.xml", 0, CV_STORAGE_WRITE);
-
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\MultiLayerBGS.xml", 0, CV_STORAGE_WRITE);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/MultiLayerBGS.xml", 0, CV_STORAGE_WRITE);
+#endif
+  
   cvWriteString(fs, "preloadModel", bg_model_preload.c_str());
   cvWriteInt(fs, "saveModel", saveModel);
   cvWriteInt(fs, "detectAfter", detectAfter);
@@ -292,8 +296,12 @@ void MultiLayerBGS::saveConfig()
 
 void MultiLayerBGS::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/MultiLayerBGS.xml", 0, CV_STORAGE_READ);
-
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\MultiLayerBGS.xml", 0, CV_STORAGE_READ);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/MultiLayerBGS.xml", 0, CV_STORAGE_READ);
+#endif
+  
   bg_model_preload = cvReadStringByName(fs, 0, "preloadModel", "");
   saveModel = cvReadIntByName(fs, 0, "saveModel", false);
   detectAfter = cvReadIntByName(fs, 0, "detectAfter", 0);

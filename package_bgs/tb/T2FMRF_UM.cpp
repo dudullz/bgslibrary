@@ -113,8 +113,12 @@ void T2FMRF_UM::process(const cv::Mat &img_input, cv::Mat &img_output, cv::Mat &
 
 void T2FMRF_UM::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/T2FMRF_UM.xml", 0, CV_STORAGE_WRITE);
-
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\T2FMRF_UM.xml", 0, CV_STORAGE_WRITE);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/T2FMRF_UM.xml", 0, CV_STORAGE_WRITE);
+#endif
+  
   cvWriteReal(fs, "threshold", threshold);
   cvWriteReal(fs, "alpha", alpha);
   cvWriteReal(fs, "km", km);
@@ -127,7 +131,11 @@ void T2FMRF_UM::saveConfig()
 
 void T2FMRF_UM::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/T2FMRF_UM.xml", 0, CV_STORAGE_READ);
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\T2FMRF_UM.xml", 0, CV_STORAGE_READ);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/T2FMRF_UM.xml", 0, CV_STORAGE_READ);
+#endif  
   
   threshold = cvReadRealByName(fs, 0, "threshold", 9.0);
   alpha = cvReadRealByName(fs, 0, "alpha", 0.01);

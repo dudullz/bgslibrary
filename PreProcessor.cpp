@@ -116,10 +116,10 @@ namespace bgslibrary
 
     cv::Mat img_canny;
     cv::Canny(
-      img_input, // image – Single-channel 8-bit input image
-      img_canny,  // edges – The output edge map. It will have the same size and the same type as image
-      100,       // threshold1 – The first threshold for the hysteresis procedure
-      200);      // threshold2 – The second threshold for the hysteresis procedure
+      img_input, // image ?Single-channel 8-bit input image
+      img_canny,  // edges ?The output edge map. It will have the same size and the same type as image
+      100,       // threshold1 ?The first threshold for the hysteresis procedure
+      200);      // threshold2 ?The second threshold for the hysteresis procedure
     cv::threshold(img_canny, img_canny, 128, 255, cv::THRESH_BINARY_INV);
 
     img_canny.copyTo(img_output);
@@ -127,8 +127,12 @@ namespace bgslibrary
 
   void PreProcessor::saveConfig()
   {
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\PreProcessor.xml", 0, CV_STORAGE_WRITE);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/PreProcessor.xml", 0, CV_STORAGE_WRITE);
-
+#endif
+	    
     cvWriteInt(fs, "equalizeHist", equalizeHist);
     cvWriteInt(fs, "gaussianBlur", gaussianBlur);
     cvWriteInt(fs, "enableShow", enableShow);
@@ -138,7 +142,11 @@ namespace bgslibrary
 
   void PreProcessor::loadConfig()
   {
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\PreProcessor.xml", 0, CV_STORAGE_READ);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/PreProcessor.xml", 0, CV_STORAGE_READ);
+#endif   
 
     equalizeHist = cvReadIntByName(fs, 0, "equalizeHist", false);
     gaussianBlur = cvReadIntByName(fs, 0, "gaussianBlur", false);

@@ -38,7 +38,7 @@ namespace bgslibrary
     int64 delta_time;
     double freq;
     double fps;
-    long frameNumber;
+    long frameNumber; // this is not frame number!!! it's the index number for std::vector imgNames
     long stopAt;
     bool useCamera;
     int cameraIndex;

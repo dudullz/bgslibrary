@@ -77,7 +77,7 @@ namespace bgslibrary
   VideoCapture::VideoCapture() : key(0), start_time(0), delta_time(0), freq(0), fps(0), frameNumber(0), stopAt(0),
     useCamera(false), useVideo(false), input_resize_percent(100), showOutput(true), enableFlip(false)
   {
-    std::cout << "VideoCapture()" << std::endl;
+    std::cout << "VideoCapture()" << std::endl;	
 	capture = NULL;
   }
 
@@ -126,7 +126,7 @@ namespace bgslibrary
   
   void VideoCapture::setImages(std::string path)
 {
-	std::cout << "	[VideoCapture::setImages()]" << std::endl;
+	std::cout << "	[VideoCapture::setImages()]" << std::endl;	
 	useImages = true;
 	imgPath = path;
 	
@@ -185,7 +185,7 @@ void VideoCapture::setUpImages()
   {
 	  std::cout << "	[VideoCapture::start()]" << std::endl;
     loadConfig();
-
+	
     if (useCamera) setUpCamera();
     if (useVideo)  setUpVideo();
 	if(useImages)	setUpImages();
@@ -200,7 +200,10 @@ void VideoCapture::setUpImages()
 		
 		frame1 = cvQueryFrame(capture);
 	}else if(useImages)
+	{
+		std::cout << std::endl << "Load First Time: " << imgNames.at(frameNumber).string() << std::endl;
 		frame1 = cvLoadImage(imgNames.at(frameNumber).string().c_str());
+	}
     
     frame = cvCreateImage(cvSize((int)((frame1->width*input_resize_percent) / 100), (int)((frame1->height*input_resize_percent) / 100)), frame1->depth, frame1->nChannels);
     //cvCreateImage(cvSize(frame1->width/input_resize_factor, frame1->height/input_resize_factor), frame1->depth, frame1->nChannels);
@@ -216,8 +219,6 @@ void VideoCapture::setUpImages()
     bool firstTime = true;
     do
     {
-      frameNumber++;
-
       if(capture)
 		{
 			frame1 = cvQueryFrame(capture);
@@ -312,6 +313,7 @@ void VideoCapture::setUpImages()
         key = cvWaitKey(0);
 
       firstTime = false;
+	  frameNumber++; // this is not frame number!!! it's the index number for std::vector imgNames
     } while (1);
 
     cvReleaseCapture(&capture);
@@ -319,7 +321,11 @@ void VideoCapture::setUpImages()
 
   void VideoCapture::saveConfig()
   {
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\VideoCapture.xml", 0, CV_STORAGE_WRITE);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/VideoCapture.xml", 0, CV_STORAGE_WRITE);
+#endif   
 
     cvWriteInt(fs, "stopAt", stopAt);
     cvWriteInt(fs, "input_resize_percent", input_resize_percent);
@@ -337,8 +343,12 @@ void VideoCapture::setUpImages()
 
   void VideoCapture::loadConfig()
   {
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\VideoCapture.xml", 0, CV_STORAGE_READ);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/VideoCapture.xml", 0, CV_STORAGE_READ);
-
+#endif
+	    
     stopAt = cvReadIntByName(fs, 0, "stopAt", 0);
     input_resize_percent = cvReadIntByName(fs, 0, "input_resize_percent", 100);
     enableFlip = cvReadIntByName(fs, 0, "enableFlip", false);

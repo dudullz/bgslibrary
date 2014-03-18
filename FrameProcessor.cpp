@@ -33,8 +33,12 @@ namespace bgslibrary
 
   void FrameProcessor::init()
   {
+	   std::cout << " [FrameProcessor::init()] " << std::endl;	
     if (enablePreProcessor)
+	{
+		std::cout << "********* Use PreProcess"  << std::endl;
       preProcessor = new PreProcessor;
+	}
 
     if (enableFrameDifferenceBGS)
       frameDifference = new FrameDifferenceBGS;
@@ -127,8 +131,11 @@ namespace bgslibrary
     if(enableMultiLayerBGS)
       multiLayerBGS = new MultiLayerBGS;
 
-    //if(enablePBAS)
-    //  pixelBasedAdaptiveSegmenter = new PixelBasedAdaptiveSegmenter;
+    if(enablePBAS)
+	{
+		std::cout << "********* Use PBAS"  << std::endl;
+      pixelBasedAdaptiveSegmenter = new PixelBasedAdaptiveSegmenter;
+	}
 
     if (enableVuMeter)
       vuMeter = new VuMeter;
@@ -165,9 +172,16 @@ namespace bgslibrary
 	
 	if(savePath.length() > 0)
 	{
-		char tmp[512];
-		sprintf(tmp, "%s/%05d.jpg", savePath.c_str(), frameNumber);
+		char tmp[512], prob[512];
+#if defined(_WIN32)
+		sprintf(tmp, "%s\\bin%06d.jpg", savePath.c_str(), frameNumber);
+		sprintf(prob, "%s\\prob\\prob%06d.jpg", savePath.c_str(), frameNumber);
+#else
+		sprintf(tmp, "%s/bin%06d.jpg", savePath.c_str(), frameNumber);
+		sprintf(prob, "%s/prob/prob%06d.jpg", savePath.c_str(), frameNumber);
+#endif
 		saveName = tmp;
+		probName = prob;
 	}
 
     if (enablePreProcessor)
@@ -230,7 +244,14 @@ namespace bgslibrary
       process("T2FGMM_UV", type2FuzzyGMM_UV, img_prep, img_t2fgmm_uv);
 
     if (enableT2FMRF_UM)
+	{
       process("T2FMRF_UM", type2FuzzyMRF_UM, img_prep, img_t2fmrf_um);
+	  if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_t2fmrf_um);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	}
 
     if (enableT2FMRF_UV)
       process("T2FMRF_UV", type2FuzzyMRF_UV, img_prep, img_t2fmrf_uv);
@@ -273,10 +294,29 @@ namespace bgslibrary
       multiLayerBGS->setStatus(MultiLayerBGS::Status::MLBGS_LEARN);
       //multiLayerBGS->setStatus(MultiLayerBGS::Status::MLBGS_DETECT);
       process("MultiLayerBGS", multiLayerBGS, img_prep, img_mlbgs);
+
+	  if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_mlbgs);
+			std::cout << "Save: " << saveName << std::endl;
+		}
     }
 
-    //if(enablePBAS)
-    //  process("PBAS", pixelBasedAdaptiveSegmenter, img_prep, img_pt_pbas);
+    if(enablePBAS)
+	{
+      process("PBAS", pixelBasedAdaptiveSegmenter, img_prep, img_pt_pbas);
+	  if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_pt_pbas);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	  if(probName.length() > 0)
+	  {
+			pixelBasedAdaptiveSegmenter->getProbMap(img_pt_pbas_prob);
+			imwrite(probName, img_pt_pbas_prob);
+			std::cout << "Save: " << probName << std::endl;
+	  }
+	}
 
     if (enableVuMeter)
       process("VuMeter", vuMeter, img_prep, img_vumeter);
@@ -288,7 +328,14 @@ namespace bgslibrary
       process("IMBS", imbs, img_prep, img_imbs);
 
     if (enableMultiCueBGS)
+	{
       process("MultiCueBGS", mcbgs, img_prep, img_mcbgs);
+	  if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_mcbgs);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	}
 
     if (enableForegroundMaskAnalysis)
     {
@@ -328,7 +375,7 @@ namespace bgslibrary
       foregroundMaskAnalysis->process(frameNumber, "LbpMrf", img_lbp_mrf);
 #endif
       foregroundMaskAnalysis->process(frameNumber, "MultiLayerBGS", img_mlbgs);
-      //foregroundMaskAnalysis->process(frameNumber, "PBAS", img_pt_pbas);
+      foregroundMaskAnalysis->process(frameNumber, "PBAS", img_pt_pbas);
       foregroundMaskAnalysis->process(frameNumber, "VuMeter", img_vumeter);
       foregroundMaskAnalysis->process(frameNumber, "KDE", img_kde);
       foregroundMaskAnalysis->process(frameNumber, "IMBS", img_imbs);
@@ -373,8 +420,8 @@ namespace bgslibrary
     if (enableVuMeter)
       delete vuMeter;
 
-    //if(enablePBAS)
-    //  delete pixelBasedAdaptiveSegmenter;
+    if(enablePBAS)
+      delete pixelBasedAdaptiveSegmenter;
 
     if (enableMultiLayerBGS)
       delete multiLayerBGS;
@@ -484,9 +531,13 @@ namespace bgslibrary
   }
 
   void FrameProcessor::saveConfig()
-  {
+  {	  
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\FrameProcessor.xml", 0, CV_STORAGE_WRITE);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/FrameProcessor.xml", 0, CV_STORAGE_WRITE);
-
+#endif
+    
     cvWriteString(fs, "tictoc", tictoc.c_str());
 
     cvWriteInt(fs, "enablePreProcessor", enablePreProcessor);
@@ -531,7 +582,7 @@ namespace bgslibrary
 #endif
 
     cvWriteInt(fs, "enableMultiLayerBGS", enableMultiLayerBGS);
-    //cvWriteInt(fs, "enablePBAS", enablePBAS);
+    cvWriteInt(fs, "enablePBAS", enablePBAS);
     cvWriteInt(fs, "enableVuMeter", enableVuMeter);
     cvWriteInt(fs, "enableKDE", enableKDE);
     cvWriteInt(fs, "enableIMBS", enableIMBS);
@@ -542,7 +593,11 @@ namespace bgslibrary
 
   void FrameProcessor::loadConfig()
   {
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\FrameProcessor.xml", 0, CV_STORAGE_READ);
+#else
     CvFileStorage* fs = cvOpenFileStorage("./config/FrameProcessor.xml", 0, CV_STORAGE_READ);
+#endif
 
     tictoc = cvReadStringByName(fs, 0, "tictoc", "");
 
@@ -588,7 +643,7 @@ namespace bgslibrary
 #endif
 
     enableMultiLayerBGS = cvReadIntByName(fs, 0, "enableMultiLayerBGS", false);
-    //enablePBAS = cvReadIntByName(fs, 0, "enablePBAS", false);
+    enablePBAS = cvReadIntByName(fs, 0, "enablePBAS", false);
     enableVuMeter = cvReadIntByName(fs, 0, "enableVuMeter", false);
     enableKDE = cvReadIntByName(fs, 0, "enableKDE", false);
     enableIMBS = cvReadIntByName(fs, 0, "enableIMBS", false);

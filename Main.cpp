@@ -16,6 +16,8 @@ along with BGSLibrary.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Config.h"
 #include "VideoAnalysis.h"
+#include "InvNormNatarajan.h"
+#include "InvNormZiegler.h"
 #include <iostream>
 
 namespace bgslibrary
@@ -35,6 +37,13 @@ namespace bgslibrary
       std::cout << "Andrews Sobral (andrewssobral@gmail.com)  " << std::endl;
       std::cout << "-----------------------------------------" << std::endl;
       std::cout << "Using OpenCV version " << CV_VERSION << std::endl;
+
+	 // double p, x;
+		//scanf("%Lg",&p);
+		//x=InvNormNatar(p);
+		//printf("\n%.20f\n",x);
+		//x=InvNormZiegler(p);
+		//printf("\n%.20f\n",x);
 
       try
       {

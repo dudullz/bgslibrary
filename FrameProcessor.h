@@ -63,7 +63,7 @@ along with BGSLibrary.  If not, see <http://www.gnu.org/licenses/>.
 // The PBAS algorithm was removed from BGSLibrary because it is
 // based on patented algorithm ViBE
 // http://www2.ulg.ac.be/telecom/research/vibe/
-//#include "package_bgs/pt/PixelBasedAdaptiveSegmenter.h"
+#include "package_bgs/pt/PixelBasedAdaptiveSegmenter.h"
 #include "package_bgs/av/VuMeter.h"
 #include "package_bgs/ae/KDE.h"
 #include "package_bgs/db/IndependentMultimodalBGS.h"
@@ -206,9 +206,10 @@ namespace bgslibrary
     MultiLayerBGS* multiLayerBGS;
     bool enableMultiLayerBGS;
 
-    //cv::Mat img_pt_pbas;
-    //PixelBasedAdaptiveSegmenter* pixelBasedAdaptiveSegmenter;
-    //bool enablePBAS;
+    cv::Mat img_pt_pbas;
+	cv::Mat img_pt_pbas_prob;
+    PixelBasedAdaptiveSegmenter* pixelBasedAdaptiveSegmenter;
+    bool enablePBAS;
 
     cv::Mat img_vumeter;
     VuMeter* vuMeter;
@@ -237,6 +238,7 @@ namespace bgslibrary
     std::string imgref;
 	std::string savePath;
 	std::string saveName;
+	std::string probName;	// prob. image file name
 
     void init();
     void process(const cv::Mat &img_input);
