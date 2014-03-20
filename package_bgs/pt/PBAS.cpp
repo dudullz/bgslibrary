@@ -236,6 +236,9 @@ bool PBAS::process(cv::Mat* input, cv::Mat* output)
 
 	  // foreground probability
 	  float prob = 1 - (float)count / (float)index;
+	   
+	  // alternative assignment
+	  //*probMap_Pt = cvRound(255.0f * prob);
 	  unsigned int p = int(prob * 255);
 	  *probMap_Pt = p;
 	  //if(runs == N)

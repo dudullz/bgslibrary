@@ -43,10 +43,12 @@ namespace lb_library
     m_SrcImage = cvCreateImage(cvSize(m_width,m_height), IPL_DEPTH_8U, 3);
     m_BGImage = cvCreateImage(cvSize(m_width,m_height), IPL_DEPTH_8U, 3);
     m_FGImage = cvCreateImage(cvSize(m_width,m_height), IPL_DEPTH_8U, 3);
+	m_ProbImage = cvCreateImage(cvSize(m_width,m_height), IPL_DEPTH_8U, 3);
 
     cvZero(m_SrcImage);
     cvZero(m_BGImage);
     cvZero(m_FGImage);
+	cvZero(m_ProbImage);
   }
 
   BGModel::~BGModel()
@@ -54,6 +56,7 @@ namespace lb_library
     if (m_SrcImage!=NULL) cvReleaseImage(&m_SrcImage);
     if (m_BGImage!=NULL) cvReleaseImage(&m_BGImage);
     if (m_FGImage!=NULL) cvReleaseImage(&m_FGImage);
+	if (m_ProbImage!=NULL) cvReleaseImage(&m_ProbImage);
   }
 
   IplImage* BGModel::GetSrc()
@@ -69,6 +72,11 @@ namespace lb_library
   IplImage* BGModel::GetBG()
   {
     return m_BGImage;
+  }
+
+  IplImage* BGModel::GetProb()
+  {
+    return m_ProbImage;
   }
 
   void BGModel::InitModel(IplImage* image)

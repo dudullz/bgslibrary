@@ -41,8 +41,10 @@ namespace bgslibrary
       "{co|use_comp|false|Use mask comparator}"
       "{st|stopAt|0|Frame number to stop}"
       "{im|imgref||Specify image file}"
-	  	"{pt|imgpath||Specify the absolute path to the image sequence}"
+	  	"{pt|imgpath||Specify the absolute path to the input image sequence}"
 		"{sv|save_path||Specify the absolute path to save the output binary images}"
+		"{prob|prob_path||Specify the absolute path to save the probability map images, if any}"
+		"{csv|csv_path||Specify the absolute path to save the probability map to csv file, if any}"
       ;
     cv::CommandLineParser cmd(argc, argv, keys);
 
@@ -86,6 +88,8 @@ namespace bgslibrary
 	}
 	
 	savePath = cmd.get<std::string>("save_path");
+	probPath = cmd.get<std::string>("prob_path");
+	csvPath = cmd.get<std::string>("csv_path");
 
     if (flag == true)
     {
@@ -117,6 +121,8 @@ namespace bgslibrary
       frameProcessor->frameToStop = frameToStop;
       frameProcessor->imgref = imgref;
 	  frameProcessor->savePath = savePath;
+	  frameProcessor->probPath = probPath;
+	  frameProcessor->csvPath = csvPath;
 
       videoCapture->setFrameProcessor(frameProcessor);
 

@@ -193,6 +193,7 @@ namespace bgslibrary
     bool enableLBAdaptiveSOM;
 
     cv::Mat img_lb_fsom;
+	cv::Mat img_lb_fsom_prob;
     LBFuzzyAdaptiveSOM* lbFuzzyAdaptiveSOM;
     bool enableLBFuzzyAdaptiveSOM;
 
@@ -203,6 +204,7 @@ namespace bgslibrary
 #endif
 
     cv::Mat img_mlbgs;
+	cv::Mat img_mlbgs_prob;
     MultiLayerBGS* multiLayerBGS;
     bool enableMultiLayerBGS;
 
@@ -236,13 +238,18 @@ namespace bgslibrary
 
     long frameToStop;
     std::string imgref;
+	
 	std::string savePath;
 	std::string saveName;
+	std::string probPath;	// prob. image save path
 	std::string probName;	// prob. image file name
+	std::string csvPath;	// csv  save path
+	std::string csvName;	// csv  file name
 
     void init();
     void process(const cv::Mat &img_input);
     void finish(void);
+	void writeProbToCSV(cv::Mat &prob_map);
 
   private:
     void process(std::string name, IBGS *bgs, const cv::Mat &img_input, cv::Mat &img_bgs);

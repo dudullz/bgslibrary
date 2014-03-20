@@ -42,6 +42,7 @@ private:
 
   cv::Mat img_foreground;
   cv::Mat img_background;
+  cv::Mat img_probability;
 
 public:
   LBFuzzyAdaptiveSOM();
@@ -49,6 +50,7 @@ public:
 
   void process(const cv::Mat &img_input, cv::Mat &img_output, cv::Mat &img_bgmodel);
   //void finish(void);
+  void getProbMap(cv::Mat &img_prob);
 
 private:
   void saveConfig();

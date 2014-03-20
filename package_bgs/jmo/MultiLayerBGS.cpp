@@ -66,7 +66,7 @@ void MultiLayerBGS::process(const cv::Mat &img_input, cv::Mat &img_output, cv::M
   loadConfig();
 
   CvSize img_size = cvSize(cvCeil((double)img_input.size().width), cvCeil((double)img_input.size().height));
-
+  
   if (firstTime)
   {
     if (disableDetectMode)
@@ -79,6 +79,9 @@ void MultiLayerBGS::process(const cv::Mat &img_input, cv::Mat &img_output, cv::M
       std::cout << "MultiLayerBGS in DETECT mode" << std::endl;
 
     org_img = new IplImage(img_input);
+
+	orig_img_size = cvSize(cvCeil((double)img_input.size().width), cvCeil((double)img_input.size().height));
+	orig_depth = org_img->depth;
 
     fg_img = cvCreateImage(img_size, org_img->depth, org_img->nChannels);
     bg_img = cvCreateImage(img_size, org_img->depth, org_img->nChannels);
@@ -247,6 +250,19 @@ void MultiLayerBGS::process(const cv::Mat &img_input, cv::Mat &img_output, cv::M
 
   firstTime = false;
   frameNumber++;
+}
+
+void MultiLayerBGS::getProbMap(cv::Mat &img_prob)
+{
+	cv::Mat probMap(fg_prob_img3);
+	if(probMap.channels() == 3)
+	{
+		cv::Mat grey_map;
+		cv::cvtColor(probMap, grey_map, CV_BGR2GRAY);  
+		grey_map.copyTo(img_prob);
+	}
+	else
+		probMap.copyTo(img_prob);
 }
 
 void MultiLayerBGS::saveConfig()

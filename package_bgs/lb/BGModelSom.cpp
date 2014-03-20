@@ -203,6 +203,7 @@ namespace lb_library
       Image<BYTERGB> prgbSrc(m_SrcImage);
       Image<BYTERGB> prgbBG(m_BGImage);
       Image<BYTERGB> prgbFG(m_FGImage);
+	  Image<BYTERGB> prgbProb(m_ProbImage);
 
       for(int j = 0; j < m_height; j++)
       {

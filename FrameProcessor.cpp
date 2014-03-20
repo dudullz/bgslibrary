@@ -172,16 +172,35 @@ namespace bgslibrary
 	
 	if(savePath.length() > 0)
 	{
-		char tmp[512], prob[512];
+		char tmp[512];
 #if defined(_WIN32)
-		sprintf(tmp, "%s\\bin%06d.jpg", savePath.c_str(), frameNumber);
-		sprintf(prob, "%s\\prob\\prob%06d.jpg", savePath.c_str(), frameNumber);
+		sprintf(tmp, "%s\\bin%06d.jpg", savePath.c_str(), frameNumber);		
 #else
-		sprintf(tmp, "%s/bin%06d.jpg", savePath.c_str(), frameNumber);
-		sprintf(prob, "%s/prob/prob%06d.jpg", savePath.c_str(), frameNumber);
+		sprintf(tmp, "%s/bin%06d.jpg", savePath.c_str(), frameNumber);		
 #endif
-		saveName = tmp;
+		saveName = tmp;		
+	}
+
+	if(probPath.length() > 0)
+	{
+		char prob[512];
+#if defined(_WIN32)		
+		sprintf(prob, "%s\\prob%06d.jpg", probPath.c_str(), frameNumber);
+#else		
+		sprintf(prob, "%s/prob%06d.jpg", probPath.c_str(), frameNumber);
+#endif		
 		probName = prob;
+	}
+
+	if(csvPath.length() > 0)
+	{
+		char csv[512];
+#if defined(_WIN32)		
+		sprintf(csv, "%s\\%d.csv", csvPath.c_str(), frameNumber);
+#else		
+		sprintf(csv, "%s/%d.csv", csvPath.c_str(), frameNumber);
+#endif		
+		csvName = csv;
 	}
 
     if (enablePreProcessor)
@@ -200,10 +219,24 @@ namespace bgslibrary
       process("WeightedMovingVarianceBGS", weightedMovingVariance, img_prep, img_movvar);
 
     if (enableMixtureOfGaussianV1BGS)
-      process("MixtureOfGaussianV1BGS", mixtureOfGaussianV1BGS, img_prep, img_mog1);
+	{
+      process("MixtureOfGaussianV1BGS", mixtureOfGaussianV1BGS, img_prep, img_mog1);	  
+		if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_mog1);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	}
 
     if (enableMixtureOfGaussianV2BGS)
+	{
       process("MixtureOfGaussianV2BGS", mixtureOfGaussianV2BGS, img_prep, img_mog2);
+	  if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_mog2);
+			std::cout << "Save: " << saveName << std::endl;
+		}
+	}
 
     if (enableAdaptiveBackgroundLearning)
       process("AdaptiveBackgroundLearning", adaptiveBackgroundLearning, img_prep, img_bkgl_fgmask);
@@ -235,7 +268,15 @@ namespace bgslibrary
       process("DPEigenbackgroundBGS", eigenBackground, img_prep, img_eigbkg);
 
     if (enableDPTextureBGS)
+	{
       process("DPTextureBGS", textureBGS, img_prep, img_texbgs);
+
+		if(saveName.length() > 0 )
+		{
+			imwrite(saveName, img_texbgs);
+			std::cout << "Save: " << saveName << std::endl;
+		}		
+	}
 
     if (enableT2FGMM_UM)
       process("T2FGMM_UM", type2FuzzyGMM_UM, img_prep, img_t2fgmm_um);
@@ -282,6 +323,19 @@ namespace bgslibrary
 			imwrite(saveName, img_lb_fsom);
 			std::cout << "Save: " << saveName << std::endl;
 		}
+
+		if(probName.length() > 0)
+		{
+			lbFuzzyAdaptiveSOM->getProbMap(img_lb_fsom_prob);
+			imwrite(probName, img_lb_fsom_prob);
+			std::cout << "Save: " << probName << std::endl;
+
+			if(csvName.length() > 0)
+			{
+				writeProbToCSV(img_lb_fsom_prob);
+				std::cout << "Save: " << csvName << std::endl;
+			}
+		}	
 	}
 
 #if !defined(_WIN32)
@@ -300,6 +354,19 @@ namespace bgslibrary
 			imwrite(saveName, img_mlbgs);
 			std::cout << "Save: " << saveName << std::endl;
 		}
+
+	  if(probName.length() > 0)
+	  {
+			multiLayerBGS->getProbMap(img_mlbgs_prob);
+			imwrite(probName, img_mlbgs_prob);
+			std::cout << "Save: " << probName << std::endl;
+
+			if(csvName.length() > 0)
+			{
+				writeProbToCSV(img_mlbgs_prob);
+				std::cout << "Save: " << csvName << std::endl;
+			}
+	  }
     }
 
     if(enablePBAS)
@@ -315,6 +382,12 @@ namespace bgslibrary
 			pixelBasedAdaptiveSegmenter->getProbMap(img_pt_pbas_prob);
 			imwrite(probName, img_pt_pbas_prob);
 			std::cout << "Save: " << probName << std::endl;
+
+			if(csvName.length() > 0)
+			{
+				writeProbToCSV(img_pt_pbas_prob);
+				std::cout << "Save: " << csvName << std::endl;
+			}
 	  }
 	}
 
@@ -383,6 +456,58 @@ namespace bgslibrary
     }
 
     firstTime = false;
+  }
+
+  void FrameProcessor::writeProbToCSV(cv::Mat &in_prob_map)
+  {
+	  // accept only char type matrices
+	  CV_Assert(in_prob_map.depth() != sizeof(uchar));
+
+	  int channels = in_prob_map.channels();
+	  int nRows = in_prob_map.rows;
+	  int nCols = in_prob_map.cols;
+	  std::cout << "Original channels: " << channels << ", nRows:" << nRows << ", nCols:" << nCols << std::endl;
+
+	  cv::Mat prob_map;
+	  if(channels == 1)
+		  prob_map = in_prob_map;
+	  /// For MultiLayer & FSOM specifically, both save greyscale image using RGB format (equal R,G,B values)
+	  else if(channels == 3)
+		  cv::cvtColor(in_prob_map, prob_map, CV_BGR2GRAY);  
+	  
+	  /// It is essential that the new line is added at end of each row in the resulting CSV file
+	  //if (prob_map.isContinuous())
+	  //{
+		 // nCols *= nRows;
+		 // nRows = 1;
+
+		 // std::cout << "Save in Memory Continuously: " << nCols << "x" << nRows << std::endl;
+	  //}
+
+	  ofstream csv;
+	  csv.open(csvName.c_str());
+
+	  int i,j;
+	  uchar* p;
+	  csv.setf( std::ios::fixed, std::ios::floatfield ); // floatfield set to fixed
+	  csv.precision(2);
+
+		for( i = 0; i < nRows; ++i)
+		{
+			p = prob_map.ptr<uchar>(i);
+			for ( j = 0; j < nCols; ++j)
+			{
+				//printf("%d:%.2f\t", p[j], p[j]);
+				float prob = (float)p[j] / 255.0f;
+				if( j != nCols - 1 )
+					csv << prob << ",";
+				else
+					csv << prob;
+			}
+			csv << "\n";
+		}
+  
+	  csv.close();
   }
 
   void FrameProcessor::finish(void)

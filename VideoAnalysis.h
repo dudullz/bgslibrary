@@ -40,6 +40,8 @@ namespace bgslibrary
 	bool use_imgs;
 	std::string imgPath;
 	std::string savePath;
+	std::string probPath;
+	std::string csvPath;
 
   public:
     VideoAnalysis();

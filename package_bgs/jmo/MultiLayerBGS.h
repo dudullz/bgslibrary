@@ -56,6 +56,10 @@ private:
   IplImage* merged_img;
   std::string bg_model_preload;
 
+  // used for creating probability map image
+  int orig_depth;
+  CvSize orig_img_size;
+
   bool loadDefaultParams;
 
   int max_mode_num;
@@ -93,6 +97,7 @@ public:
 
   void setStatus(Status status);
   void process(const cv::Mat &img_input, cv::Mat &img_output, cv::Mat &img_bgmodel);
+  void getProbMap(cv::Mat &img_prob);
 
 private:
   void finish(void);

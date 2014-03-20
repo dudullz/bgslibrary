@@ -135,8 +135,12 @@ void DPTextureBGS::process(const cv::Mat &img_input, cv::Mat &img_output, cv::Ma
 
 void DPTextureBGS::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/DPTextureBGS.xml", 0, CV_STORAGE_WRITE);
-
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\DPTextureBGS.xml", 0, CV_STORAGE_WRITE);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/DPTextureBGS.xml", 0, CV_STORAGE_WRITE);
+#endif  
+  
   //cvWriteReal(fs, "alpha", alpha);
   //cvWriteInt(fs, "enableFiltering", enableFiltering);
   cvWriteInt(fs, "showOutput", showOutput);
@@ -146,7 +150,11 @@ void DPTextureBGS::saveConfig()
 
 void DPTextureBGS::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/DPTextureBGS.xml", 0, CV_STORAGE_READ);
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\DPTextureBGS.xml", 0, CV_STORAGE_READ);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/DPTextureBGS.xml", 0, CV_STORAGE_READ);
+#endif 
   
   //alpha = cvReadRealByName(fs, 0, "alpha", 1e-6f);
   //enableFiltering = cvReadIntByName(fs, 0, "enableFiltering", true);

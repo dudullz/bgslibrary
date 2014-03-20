@@ -203,6 +203,7 @@ namespace lb_library
       Image<BYTERGB> prgbSrc(m_SrcImage);
       Image<BYTERGB> prgbBG(m_BGImage);
       Image<BYTERGB> prgbFG(m_FGImage);
+	  Image<BYTERGB> prgbProb(m_ProbImage);
 
       for(int j = 0; j < m_height; j++)
       {
@@ -246,6 +247,12 @@ namespace lb_library
           if(d2min < epsilon)
             fuzzyBG = d2min/epsilon;
 
+		  prgbProb[j][i].Red = prgbProb[j][i].Green = prgbProb[j][i].Blue = cvRound(255.0f * fuzzyBG);
+
+		  //if(d2min < epsilon)
+			 // prgbProb[j][i].Red = prgbProb[j][i].Green = prgbProb[j][i].Blue = cvRound(255.0f * fuzzyBG);
+		  //else
+			 // prgbProb[j][i].Red = prgbProb[j][i].Green = prgbProb[j][i].Blue = cvRound(255.0f * epsilon/d2min);
           // Update SOM
 
           double alphamax = alpha*exp(FUZZYEXP*fuzzyBG);

@@ -75,8 +75,12 @@ void MixtureOfGaussianV2BGS::process(const cv::Mat &img_input, cv::Mat &img_outp
 
 void MixtureOfGaussianV2BGS::saveConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_WRITE);
-
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_WRITE);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_WRITE);
+#endif
+  
   cvWriteReal(fs, "alpha", alpha);
   cvWriteInt(fs, "enableThreshold", enableThreshold);
   cvWriteInt(fs, "threshold", threshold);
@@ -87,8 +91,12 @@ void MixtureOfGaussianV2BGS::saveConfig()
 
 void MixtureOfGaussianV2BGS::loadConfig()
 {
-  CvFileStorage* fs = cvOpenFileStorage("./config/MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_READ);
-  
+#if defined(_WIN32)
+	CvFileStorage* fs = cvOpenFileStorage("F:\\Developer\\BGS\\AndrewsSobral\\bgslibrary\\config\\MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_READ);
+#else
+    CvFileStorage* fs = cvOpenFileStorage("./config/MixtureOfGaussianV2BGS.xml", 0, CV_STORAGE_READ);
+#endif
+    
   alpha = cvReadRealByName(fs, 0, "alpha", 0.05);
   enableThreshold = cvReadIntByName(fs, 0, "enableThreshold", true);
   threshold = cvReadIntByName(fs, 0, "threshold", 15);

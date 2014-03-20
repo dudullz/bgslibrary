@@ -72,7 +72,19 @@ void LBFuzzyAdaptiveSOM::process(const cv::Mat &img_input, cv::Mat &img_output, 
   
   firstTime = false;
 }
+void LBFuzzyAdaptiveSOM::getProbMap(cv::Mat &img_prob)
+{
+	img_probability = cv::Mat(m_pBGModel->GetProb());
 
+	if(img_probability.channels() == 3)
+	{
+		cv::Mat grey_map;
+		cv::cvtColor(img_probability, grey_map, CV_BGR2GRAY);  
+		grey_map.copyTo(img_prob);
+	}
+	else
+		img_probability.copyTo(img_prob);	
+}
 //void LBFuzzyAdaptiveSOM::finish(void)
 //{
 //  //delete m_pBGModel;

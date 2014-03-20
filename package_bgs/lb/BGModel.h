@@ -60,12 +60,14 @@ namespace lb_library
     virtual IplImage* GetSrc();
     virtual IplImage* GetFG();
     virtual IplImage* GetBG();
+	virtual IplImage* GetProb();
 
   protected:
   
     IplImage* m_SrcImage;
     IplImage* m_BGImage;
     IplImage* m_FGImage;
+	IplImage* m_ProbImage;
 
     const int m_width;
     const int m_height;
